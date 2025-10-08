@@ -1,0 +1,43 @@
+name: data-processing-workflow
+version: 1.0.0
+variables:
+  batchSize: 100
+  processingTimeout: 60s
+
+steps:
+  - id: fetch-data
+    type: http
+    method: GET
+    url: https://jsonplaceholder.typicode.com/users
+    next: validate-data
+
+  - id: validate-data
+    type: condition
+    expression: "#result['status'] == 200 and #result['body'] != null"
+    onTrue: process-data
+    onFalse: error-handler
+
+  - id: process-data
+    type: delay
+    duration: 3s
+    next: save-results
+
+  - id: save-results
+    type: http
+    method: POST
+    url: https://httpbin.org/post
+    body:
+      processedData: "#result"
+      timestamp: "${System.currentTimeMillis()}"
+      batchSize: "${batchSize}"
+    next: success-notification
+
+  - id: success-notification
+    type: log
+    message: "Data processing completed successfully. Processed ${batchSize} records."
+    level: info
+
+  - id: error-handler
+    type: log
+    message: "Data validation failed: ${result}"
+    level: error

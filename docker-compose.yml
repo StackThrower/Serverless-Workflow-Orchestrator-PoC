@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: workflow-postgres
+    environment:
+      POSTGRES_DB: workflow_db
+      POSTGRES_USER: workflow_user
+      POSTGRES_PASSWORD: workflow_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./workflow-storage/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workflow_user -d workflow_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  workflow-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workflow-api
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/workflow_db
+      SPRING_R2DBC_USERNAME: workflow_user
+      SPRING_R2DBC_PASSWORD: workflow_pass
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./workflow-api/src/main/resources/workflows:/app/workflows
+
+volumes:
+  postgres_data:

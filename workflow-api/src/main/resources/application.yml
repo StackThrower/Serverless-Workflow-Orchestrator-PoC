@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: serverless-workflow-orchestrator
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/workflow_db
+    username: workflow_user
+    password: workflow_pass
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.workflow: DEBUG
+    org.springframework.r2dbc: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

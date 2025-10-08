@@ -1,0 +1,43 @@
+name: sample-workflow
+version: 1.0.0
+variables:
+  maxRetries: 3
+  timeout: 30s
+
+steps:
+  - id: step1
+    type: http
+    method: GET
+    url: https://jsonplaceholder.typicode.com/todos/1
+    next: step2
+
+  - id: step2
+    type: delay
+    duration: 2s
+    next: step3
+
+  - id: step3
+    type: condition
+    expression: "#result['status'] == 200"
+    onTrue: step4
+    onFalse: step5
+
+  - id: step4
+    type: http
+    method: POST
+    url: https://httpbin.org/post
+    body:
+      message: "Workflow executed successfully"
+      status: "ok"
+      originalData: "#result"
+    next: step6
+
+  - id: step5
+    type: log
+    message: "Workflow failed at HTTP step: ${result}"
+    level: error
+
+  - id: step6
+    type: log
+    message: "Workflow completed successfully with result: ${result}"
+    level: info
