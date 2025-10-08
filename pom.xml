@@ -24,6 +24,7 @@
         <module>workflow-engine</module>
         <module>workflow-storage</module>
         <module>workflow-api</module>
+        <module>workflow-ui</module>
     </modules>
 
     <dependencyManagement>

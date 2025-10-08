@@ -13,6 +13,7 @@ The project is structured as a multi-module Maven application:
 - **workflow-storage** - Data access layer with PostgreSQL entities and repositories
 - **workflow-engine** - Core workflow engine with YAML parsing and step execution
 - **workflow-api** - REST API with WebSocket support for real-time monitoring
+- **workflow-ui** - React-based web interface for workflow monitoring and management
 
 ## 🚀 Features
 
@@ -20,10 +21,13 @@ The project is structured as a multi-module Maven application:
 - ✅ Reactive step execution with backpressure handling
 - ✅ State persistence and recovery
 - ✅ Real-time monitoring via WebSocket
+- ✅ Modern React web interface for workflow management
 - ✅ Extensible step executor framework
 - ✅ Built-in step types: HTTP, Delay, Condition, Log
 - ✅ Expression evaluation with Spring SpEL
 - ✅ Comprehensive error handling and retry logic
+- ✅ Interactive dashboard with workflow statistics
+- ✅ Live workflow execution tracking
 
 ## 🛠️ Technology Stack
 
@@ -34,6 +38,8 @@ The project is structured as a multi-module Maven application:
 - **PostgreSQL + R2DBC** - Reactive database access
 - **SnakeYAML** - YAML parsing
 - **WebSocket** - Real-time updates
+- **React 18** - Modern frontend framework
+- **Tailwind CSS** - Utility-first CSS framework
 - **Docker Compose** - Local development environment
 
 ## 📋 Quick Start
@@ -42,6 +48,7 @@ The project is structured as a multi-module Maven application:
 - Java 21+
 - Docker & Docker Compose
 - Maven 3.8+
+- Node.js 18+ (for UI development)
 
 ### 1. Clone and Build
 ```bash
@@ -61,7 +68,19 @@ cd workflow-api
 mvn spring-boot:run
 ```
 
-### 4. Test Workflow Execution
+### 4. Access Web Interface
+Open your browser and navigate to: **http://localhost:8080**
+
+### 5. Test Workflow Execution
+
+#### Via Web Interface:
+1. Open http://localhost:8080 in your browser
+2. Click "Start Workflow" button
+3. Select a workflow definition (sample-workflow or data-processing-workflow)
+4. Provide input JSON
+5. Monitor execution in real-time
+
+#### Via API:
 ```bash
 # Start a workflow
 curl -X POST http://localhost:8080/api/workflows/start/sample-workflow \
@@ -155,6 +174,10 @@ steps:
 
 ## 🌐 API Endpoints
 
+### Web Interface
+- `GET /` - Main dashboard interface
+- `GET /workflow/{id}` - Detailed workflow view
+
 ### Workflow Management
 - `POST /api/workflows/start/{workflowName}` - Start workflow execution
 - `GET /api/workflows/{instanceId}` - Get workflow instance status
@@ -170,7 +193,7 @@ steps:
 
 ## 🧪 Testing
 
-### Unit Tests
+### Backend Tests
 ```bash
 mvn test
 ```
@@ -178,6 +201,13 @@ mvn test
 ### Integration Tests
 ```bash
 mvn verify
+```
+
+### Frontend Development
+```bash
+cd workflow-ui/src/main/webapp
+npm install
+npm start  # Runs on http://localhost:3000 with proxy to backend
 ```
 
 ### Manual Testing with Sample Workflows
@@ -194,7 +224,7 @@ docker-compose up --build
 
 This will start:
 - PostgreSQL database (port 5432)
-- Workflow API (port 8080)
+- Workflow API with embedded React UI (port 8080)
 
 ## 🔍 Monitoring
 
@@ -202,6 +232,13 @@ This will start:
 ```bash
 curl http://localhost:8080/actuator/health
 ```
+
+### Web Dashboard
+Visit http://localhost:8080 for comprehensive monitoring including:
+- Real-time workflow statistics
+- Execution timelines
+- Error tracking
+- Performance metrics
 
 ### WebSocket Connection (JavaScript)
 ```javascript
@@ -242,6 +279,8 @@ public class CustomStepExecutor implements StepExecutor {
 - **State Persistence**: Workflow state saved after each step
 - **Fault Tolerance**: Automatic retry logic and error handling
 - **Scalability**: Horizontally scalable with proper database configuration
+- **Modern UI**: Efficient React components with optimized rendering
+- **Real-time Updates**: WebSocket-based live data streaming
 
 ## 🔐 Security Considerations
 
@@ -249,6 +288,8 @@ public class CustomStepExecutor implements StepExecutor {
 - SQL injection protection via R2DBC parameterized queries
 - Expression evaluation sandboxing with Spring SpEL
 - WebSocket connection management and rate limiting
+- XSS protection in React components
+- CSRF protection for state-changing operations
 
 ## 📚 Further Development
 
@@ -258,17 +299,32 @@ Potential enhancements:
 - [ ] Workflow scheduling (cron-like)
 - [ ] Metrics and observability integration
 - [ ] GraphQL API
-- [ ] Web UI for workflow visualization
+- [x] Web UI for workflow visualization ✅ **COMPLETED**
 - [ ] Workflow templates and libraries
+- [ ] Role-based access control
+- [ ] Workflow export/import functionality
+- [ ] Advanced analytics and reporting
+- [ ] Mobile app for workflow monitoring
 
-## 🤝 Contributing
+## 🎯 Project Structure
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
-
-## 📝 License
-
-This project is licensed under the MIT License.
+```
+serverless-workflow-orchestrator/
+├── workflow-storage/          # Data persistence layer
+│   ├── entities/             # PostgreSQL entities
+│   └── repositories/         # R2DBC reactive repositories
+├── workflow-engine/          # Core workflow execution engine  
+│   ├── interpreters/         # YAML parsing
+│   ├── executors/           # Step execution (HTTP, Delay, Condition, Log)
+│   └── models/              # Workflow definition models
+├── workflow-api/            # REST API & WebSocket endpoints
+│   ├── controllers/         # HTTP endpoints
+│   ├── services/           # Business logic
+│   └── websocket/          # Real-time updates
+├── workflow-ui/             # React web interface
+│   └── src/main/webapp/     # React application
+│       ├── src/components/  # React components
+│       ├── public/         # Static assets
+│       └── package.json    # NPM dependencies
+└── docker-compose.yml      # Local development setup
+```
